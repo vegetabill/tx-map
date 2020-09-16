@@ -4,10 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npx jasmine",
+    "start": "node index.js",
+    "dev": "nodemon"
   },
   "keywords": [],
-  "author": "",
+  "author": "vegetabill",
   "license": "ISC",
   "devDependencies": {
     "jasmine": "^3.6.1"
