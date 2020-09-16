@@ -53,4 +53,10 @@ describe("Context", () => {
     ctx.mergeIntoParent();
     expect(root.get("A")).toEqual(7);
   });
+
+  it("should return count of entries with specified value", () => {
+    root.set("B", 2);
+    root.set("C", 1);
+    expect(root.count(1)).toEqual(2);
+  });
 });
