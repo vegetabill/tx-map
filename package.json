@@ -1,17 +1,27 @@
 {
   "name": "tx-map",
   "version": "1.0.0",
-  "description": "",
+  "description": "transactional in-memory map with command console",
   "main": "index.js",
   "scripts": {
     "test": "npx jasmine",
     "start": "node index.js",
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "coverage": "nyc --exclude spec npm run test",
+    "format": "npx prettier --write lib/*.js spec/*.js"
+  },
+  "prettier": {
+    "trailingComma": "all",
+    "tabWidth": 2,
+    "semi": true,
+    "singleQuote": false
   },
   "keywords": [],
   "author": "vegetabill",
   "license": "ISC",
   "devDependencies": {
-    "jasmine": "^3.6.1"
+    "jasmine": "^3.6.1",
+    "nyc": "^15.1.0",
+    "prettier": "^2.1.2"
   }
 }

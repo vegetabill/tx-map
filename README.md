@@ -9,6 +9,8 @@ https://triplebyte.com/blog/the-best-worst-and-most-interesting-moments-from-my-
 
 An interactive shell that understands the commands below.
 
+To start the shell, run `npm start`.
+
 ## Commands
 
 - `SET [key] [value]`: Sets the given key to the specified value. If the key is already present, overwrite the old value.

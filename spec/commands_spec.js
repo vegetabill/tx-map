@@ -52,4 +52,8 @@ describe("command parsing", () => {
       expect(ctx.output).toHaveBeenCalledWith("Count of 7: 3");
     });
   });
+
+  describe("BEGIN cmd", () => {
+    it("should call ", () => {});
+  });
 });
