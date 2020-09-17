@@ -9,13 +9,16 @@ const input = createInterface({
   terminal: false,
 });
 
-console.log("Tx Map");
+console.log("tx-map console");
 
 input.on("line", (line) => {
   try {
     session.processLine(line);
   } catch (e) {
     console.error(e);
+    if (!e.recoverable) {
+      process.exit(-1);
+    }
   }
 });
 
