@@ -59,4 +59,15 @@ describe("Context", () => {
     root.set("C", 1);
     expect(root.count(1)).toEqual(2);
   });
+
+  it("should throw error if mergeIntoParent is called when no parent exists", () => {
+    expect(() => root.mergeIntoParent()).toThrowError();
+  });
+
+  it("should allow output to supplied listener", () => {
+    const listener = jasmine.createSpy();
+    const ctx = new Context(null, { outputListener: listener });
+    ctx.output("test");
+    expect(listener).toHaveBeenCalledWith(`[tx ${ctx.id}] - test`);
+  });
 });

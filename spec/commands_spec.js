@@ -1,4 +1,12 @@
-const { GET, SET, DELETE, COUNT } = require("../lib/commands");
+const {
+  GET,
+  SET,
+  DELETE,
+  COUNT,
+  BEGIN,
+  ROLLBACK,
+  COMMIT,
+} = require("../lib/commands");
 
 describe("command parsing", () => {
   describe("GET cmd", () => {
@@ -54,6 +62,68 @@ describe("command parsing", () => {
   });
 
   describe("BEGIN cmd", () => {
-    it("should call ", () => {});
+    it("should call createChild on ctx", () => {
+      const child = { id: 123 };
+      const ctx = {
+        createChild: () => child,
+        output: () => {},
+      };
+      spyOn(ctx, "output");
+      const result = BEGIN(ctx);
+      expect(result).toBe(child);
+      expect(ctx.output).toHaveBeenCalledWith("Began tx id=123");
+    });
+  });
+
+  describe("ROLLBACK cmd", () => {
+    it("should return parent ctx", () => {
+      const parent = {};
+      const ctx = {
+        id: 7,
+        parent,
+        hasTx: true,
+        output: () => {},
+      };
+      spyOn(ctx, "output");
+      const result = ROLLBACK(ctx);
+      expect(result).toBe(parent);
+      expect(ctx.output).toHaveBeenCalledWith("Discarding tx 7");
+    });
+
+    it("should print warning and return self if in root ctx", () => {
+      const ctx = {
+        hasTx: false,
+        output: () => {},
+      };
+      spyOn(ctx, "output");
+      const result = ROLLBACK(ctx);
+      expect(result).toBe(ctx);
+      expect(ctx.output).toHaveBeenCalledWith("No transaction in progress.");
+    });
+  });
+
+  describe("COMMIT cmd", () => {
+    it("should call mergeWithParent and return parent", () => {
+      const parent = {};
+      const ctx = {
+        parent,
+        hasTx: true,
+        mergeIntoParent: () => parent,
+        output: () => {},
+      };
+      const result = COMMIT(ctx);
+      expect(result).toBe(parent);
+    });
+
+    it("should print warning and return self if in root ctx", () => {
+      const ctx = {
+        hasTx: false,
+        output: () => {},
+      };
+      spyOn(ctx, "output");
+      const result = COMMIT(ctx);
+      expect(result).toBe(ctx);
+      expect(ctx.output).toHaveBeenCalledWith("No transaction in progress.");
+    });
   });
 });
