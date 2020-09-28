@@ -1,24 +1,13 @@
 const net = require("net");
 const readLines = require("./lib/line-reader");
+const createMap = require("./lib/mvcc-map");
 const { startSession } = require("./lib/session");
-const Context = require("./lib/context");
-
-const root = new Context();
+const state = createMap();
 
 const server = net.createServer((client) => {
-  const outputListener = (msg) => {
-    client.write(msg + "\n");
-  };
-
-  const session = startSession(root, outputListener);
-  console.debug(`Client connected: session ${session.id}`);
-
+  const session = startSession(client, state);
   client.write("Tx-Map Console - Commands end with newline. \\q to quit.\n\n");
-
-  readLines(client, (line) => {
-    session.processLine(line);
-  });
-
+  readLines(client, (line) => session.processLine(line));
   client.on("close", () => session.close());
   client.on("end", () => session.close());
   client.on("error", (err) => console.error(err));

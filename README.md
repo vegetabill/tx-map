@@ -5,6 +5,10 @@ For coding practice, this is a transactional Map data structure in JavaScript.
 A coding challenge covered in this blog:
 https://triplebyte.com/blog/the-best-worst-and-most-interesting-moments-from-my-marathon-month-of-technical-interviews/ (subheading: "Solving the Trickiest System Design Question")
 
+## Additional Requirements
+
+This branch implements _Snapshot Isolation_ for each transaction (meaning transactions only see data committed before they began) and uses MVCC similar to [Postgres MVCC](https://wiki.postgresql.org/wiki/MVCC).
+
 ## Requirements
 
 An interactive shell that understands the commands below.
@@ -24,33 +28,20 @@ To start the shell, run `npm start`.
 ### Examples
 
 ```
-> BEGIN //Creates a new transaction
-> SET X 5
+> BEGIN
 > SET Y 19
 > GET Y
 Y = 19
 ```
 
 ```
-> BEGIN //Creates a new transaction which is currently active
-> SET X 5
-> SET Y 19
-> GET Y
-Y = 19
-> ROLLBACK //Throws away the changes made
-> GET Y
-Y not set // Changes made by SET Y 19 have been discarded
-```
-
-```
-> BEGIN //Creates a new transaction which is currently active
-> SET X 5
-> SET Y 19
-> BEGIN //Spawns a new transaction in the context of the previous transaction and now this is currently active
-> GET Y
-Y = 19 //The new transaction has access to the context of its parent transaction**
-> SET Y 23
-> COMMIT //Y's new value has been persisted to the key-value store**
-> GET Y
-Y = 23 // Changes made by SET Y 19 have been discarded**
+Client 1     | Client 2
+> BEGIN      |
+> SET X 3    | > BEGIN
+> COMMIT     | > GET X
+>            | > X = undefined
+             | > ROLLBACK
+             | > BEGIN
+             | > GET X
+             | > X = 3
 ```
