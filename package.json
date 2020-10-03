@@ -6,7 +6,7 @@
   "scripts": {
     "test": "npx jasmine",
     "start": "node index.js",
-    "dev": "nodemon",
+    "dev": "VERBOSE=true nodemon",
     "coverage": "nyc --exclude spec npm run test",
     "format": "npx prettier --write lib/*.js spec/*.js"
   },

@@ -53,4 +53,10 @@ describe("command parsing", () => {
     const cmd = parseCommand("COMMIT");
     expect(cmd).toBeInstanceOf(CommitCommand);
   });
+
+  it("should parse LOG with correct key arg", () => {
+    const cmd = parseCommand("LOG A");
+    expect(cmd).toBeInstanceOf(LogCommand);
+    expect(cmd.key).toEqual("A");
+  });
 });
