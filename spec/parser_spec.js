@@ -1,12 +1,12 @@
 const { parseCommand } = require("../lib/parser");
 const {
-  GET,
-  SET,
-  DELETE,
-  COUNT,
-  BEGIN,
-  ROLLBACK,
-  COMMIT,
+  GetCommand,
+  SetCommand,
+  DeleteCommand,
+  CountCommand,
+  BeginCommand,
+  RollbackCommand,
+  CommitCommand,
 } = require("../lib/commands");
 
 describe("command parsing", () => {
@@ -16,50 +16,41 @@ describe("command parsing", () => {
 
   it("should parse GET command properly", () => {
     const cmd = parseCommand("GET z");
-    expect(typeof cmd).toEqual("function");
-    expect(cmd.args).toEqual(["z"]);
-    expect(cmd.impl).toBe(GET);
+    expect(cmd).toBeInstanceOf(GetCommand);
+    expect(cmd.key).toEqual("z");
   });
 
   it("should parse SET command with one string and one numeric arg", () => {
     const cmd = parseCommand("SET X 2");
-    expect(typeof cmd).toEqual("function");
-    expect(cmd.args).toEqual(["X", 2]);
-    expect(cmd.impl).toEqual(SET);
+    expect(cmd).toBeInstanceOf(SetCommand);
+    expect(cmd.key).toEqual("X");
+    expect(cmd.value).toEqual(2);
   });
 
   it("should parse DELETE with single string arg", () => {
     const cmd = parseCommand("DELETE Y");
-    expect(typeof cmd).toEqual("function");
-    expect(cmd.args).toEqual(["Y"]);
-    expect(cmd.impl).toEqual(DELETE);
+    expect(cmd).toBeInstanceOf(DeleteCommand);
+    expect(cmd.key).toEqual("Y");
   });
 
   it("should parse COUNT with single numeric arg", () => {
     const cmd = parseCommand("COUNT 7");
-    expect(typeof cmd).toEqual("function");
-    expect(cmd.args).toEqual([7]);
-    expect(cmd.impl).toEqual(COUNT);
+    expect(cmd).toBeInstanceOf(CountCommand);
+    expect(cmd.value).toEqual(7);
   });
 
   it("should parse BEGIN with no args", () => {
     const cmd = parseCommand("BEGIN");
-    expect(typeof cmd).toEqual("function");
-    expect(cmd.args).toEqual([]);
-    expect(cmd.impl).toEqual(BEGIN);
+    expect(cmd).toBeInstanceOf(BeginCommand);
   });
 
   it("should parse ROLLBACK with no args", () => {
     const cmd = parseCommand("ROLLBACK");
-    expect(typeof cmd).toEqual("function");
-    expect(cmd.args).toEqual([]);
-    expect(cmd.impl).toEqual(ROLLBACK);
+    expect(cmd).toBeInstanceOf(RollbackCommand);
   });
 
   it("should parse COMMIT with no args", () => {
     const cmd = parseCommand("COMMIT");
-    expect(typeof cmd).toEqual("function");
-    expect(cmd.args).toEqual([]);
-    expect(cmd.impl).toEqual(COMMIT);
+    expect(cmd).toBeInstanceOf(CommitCommand);
   });
 });

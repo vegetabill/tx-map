@@ -60,4 +60,11 @@ describe("MVCC Map", () => {
     expect(() => map.setInTx("A", 1, NaN)).toThrowError();
     expect(() => map.setInTx("A", null, 2)).toThrowError();
   });
+
+  it("should get back undefined if delete called by current tx", () => {
+    const curTx = 2;
+    map.setInTx("z", 4, curTx);
+    map.delete("z", curTx);
+    expect(map.get("z", curTx)).toBeUndefined();
+  });
 });
