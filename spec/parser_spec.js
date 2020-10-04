@@ -7,6 +7,7 @@ const {
   BeginCommand,
   RollbackCommand,
   CommitCommand,
+  LogCommand,
 } = require("../lib/commands");
 
 describe("command parsing", () => {
