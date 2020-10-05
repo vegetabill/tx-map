@@ -9,6 +9,8 @@ https://triplebyte.com/blog/the-best-worst-and-most-interesting-moments-from-my-
 
 This branch implements _Snapshot Isolation_ for each transaction (meaning transactions only see data committed before they began) and uses MVCC similar to [Postgres MVCC](https://wiki.postgresql.org/wiki/MVCC).
 
+To review the original simple implementation, see [MVP Tag](https://github.com/vegetabill/tx-map/releases/tag/mvp).
+
 ## Requirements
 
 An interactive shell that understands the commands below.
