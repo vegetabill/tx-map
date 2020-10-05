@@ -32,6 +32,11 @@ describe("concurrent sessions", () => {
     [A, B] = createConcurrentSessions();
   });
 
+  afterEach(() => {
+    A.exec("ROLLBACK");
+    B.exec("ROLLBACK");
+  });
+
   it("should ensure uncommitted values are not visible to other tx", () => {
     A.exec("BEGIN");
     A.exec("SET A 3");
