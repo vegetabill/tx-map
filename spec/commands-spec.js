@@ -1,13 +1,22 @@
-const { GetCommand, SetCommand, DeleteCommand } = require("../lib/commands");
+const {
+  GetCommand,
+  SetCommand,
+  DeleteCommand,
+  RollbackCommand,
+  BeginCommand,
+  CommitCommand,
+} = require("../lib/commands");
 const impl = () => {
   throw new Error("must be mocked");
 };
 describe("Command execution", () => {
   const baseTx = 123;
   const state = {
-    get: () => impl,
-    setInTx: () => impl,
-    delete: () => impl,
+    get: impl,
+    setInTx: impl,
+    delete: impl,
+    rollback: impl,
+    commit: impl
   };
   describe("GET cmd", () => {
     it("should print value of variable when present", () => {
@@ -41,84 +50,70 @@ describe("Command execution", () => {
     });
   });
 
-  // describe("COUNT cmd", () => {
-  //   it("should call count on ctx", () => {
-  //     const ctx = {
-  //       count: () => {},
-  //       output: () => {},
-  //     };
-  //     spyOn(ctx, "count").and.returnValue(3);
-  //     spyOn(ctx, "output");
-  //     const result = COUNT(ctx, [7]);
-  //     expect(result).toBe(ctx);
-  //     expect(ctx.count).toHaveBeenCalledWith(7);
-  //     expect(ctx.output).toHaveBeenCalledWith("Count of 7: 3");
-  //   });
-  // });
+  describe("BEGIN cmd", () => {
+    it("should call startTransaction and return new id", () => {
+      const newTxId = 777;
+      const txManager = { startTransaction: () => null };
+      spyOn(txManager, "startTransaction").and.returnValue(newTxId);
+      const cmd = new BeginCommand(null, txManager);
+      const { tx, output } = cmd.execute();
+      expect(txManager.startTransaction).toHaveBeenCalled();
+      expect(tx).toEqual(newTxId);
+      expect(output).toContain("Started transaction");
+    });
 
-  // describe("BEGIN cmd", () => {
-  //   it("should call createChild on ctx", () => {
-  //     const child = { id: 123 };
-  //     const ctx = {
-  //       createChild: () => child,
-  //       output: () => {},
-  //     };
-  //     spyOn(ctx, "output");
-  //     const result = BEGIN(ctx);
-  //     expect(result).toBe(child);
-  //     expect(ctx.output).toHaveBeenCalledWith("Began tx id=123");
-  //   });
-  // });
+    it("should not do anything if a tx is in progress", () => {
+      const cmd = new BeginCommand();
+      const { tx, output } = cmd.execute(baseTx);
+      expect(tx).toEqual(baseTx);
+      expect(output).toContain("not allowed");
+    });
+  });
 
-  // describe("ROLLBACK cmd", () => {
-  //   it("should return parent ctx", () => {
-  //     const parent = {};
-  //     const ctx = {
-  //       id: 7,
-  //       parent,
-  //       hasTx: true,
-  //       output: () => {},
-  //     };
-  //     spyOn(ctx, "output");
-  //     const result = ROLLBACK(ctx);
-  //     expect(result).toBe(parent);
-  //     expect(ctx.output).toHaveBeenCalledWith("Discarding tx 7");
-  //   });
+  describe("ROLLBACK cmd", () => {
+    it("should rollback state and conclude", () => {
+      const txManager = { concludeTransaction: () => null };
+      spyOn(txManager, "concludeTransaction");
+      spyOn(state, "rollback");
 
-  //   it("should print warning and return self if in root ctx", () => {
-  //     const ctx = {
-  //       hasTx: false,
-  //       output: () => {},
-  //     };
-  //     spyOn(ctx, "output");
-  //     const result = ROLLBACK(ctx);
-  //     expect(result).toBe(ctx);
-  //     expect(ctx.output).toHaveBeenCalledWith("No transaction in progress.");
-  //   });
-  // });
+      const cmd = new RollbackCommand(null, txManager);
+      const { tx, output } = cmd.execute(baseTx, state);
 
-  // describe("COMMIT cmd", () => {
-  //   it("should call mergeWithParent and return parent", () => {
-  //     const parent = {};
-  //     const ctx = {
-  //       parent,
-  //       hasTx: true,
-  //       mergeIntoParent: () => parent,
-  //       output: () => {},
-  //     };
-  //     const result = COMMIT(ctx);
-  //     expect(result).toBe(parent);
-  //   });
+      expect(tx).toBeFalsy();
+      expect(output).toContain(`${baseTx} rolled back`);
+      expect(state.rollback).toHaveBeenCalledWith(baseTx);
+      expect(txManager.concludeTransaction).toHaveBeenCalledWith(baseTx);
+    });
 
-  //   it("should print warning and return self if in root ctx", () => {
-  //     const ctx = {
-  //       hasTx: false,
-  //       output: () => {},
-  //     };
-  //     spyOn(ctx, "output");
-  //     const result = COMMIT(ctx);
-  //     expect(result).toBe(ctx);
-  //     expect(ctx.output).toHaveBeenCalledWith("No transaction in progress.");
-  //   });
-  // });
+    it("should not do anything if a tx is not in progress", () => {
+      const cmd = new RollbackCommand();
+      const { tx, output } = cmd.execute();
+      expect(tx).toBeFalsy();;
+      expect(output).toContain("No transaction in progress");
+    });
+  });
+
+  describe('COMMIT cmd', () => {
+    it("should commit state and conclude", () => {
+      const txManager = { concludeTransaction: () => null };
+      spyOn(txManager, "concludeTransaction");
+      spyOn(state, "commit");
+
+      const cmd = new CommitCommand(null, txManager);
+      const { tx, output } = cmd.execute(baseTx, state);
+
+      expect(tx).toBeFalsy();
+      expect(output).toContain(`${baseTx} committed`);
+      expect(state.commit).toHaveBeenCalledWith(baseTx);
+      expect(txManager.concludeTransaction).toHaveBeenCalledWith(baseTx);
+    });
+
+    it("should not do anything if a tx is not in progress", () => {
+      const cmd = new CommitCommand();
+      const { tx, output } = cmd.execute();
+      expect(tx).toBeFalsy();
+      expect(output).toContain("No transaction in progress");
+    });
+  });
+  
 });
